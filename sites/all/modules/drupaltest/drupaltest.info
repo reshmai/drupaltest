@@ -1,0 +1,5 @@
+
+name = drupaltestcustom
+description = Provides token replacements for all properties that have no tokens and are known to the entity 
+version = "7.x-1.6"
+core = "7.x"
