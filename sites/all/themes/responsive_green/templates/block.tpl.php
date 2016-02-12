@@ -39,6 +39,7 @@
  * @see template_preprocess_block()
  * @see template_process()
  */
+
 ?>
 <div id="<?php print $block_html_id; ?>" class="<?php print $classes; ?>"<?php print $attributes; ?>>
   <?php print render($title_prefix); ?>
