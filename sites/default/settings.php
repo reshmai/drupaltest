@@ -216,11 +216,20 @@ $databases = array (
   'default' => 
   array (
     'default' => 
+    // array (
+    //   'database' => 'drupal7cleardbmysql',
+    //   'username' => 'b0ded7d2bedb5e',
+    //   'password' => '9a40ee9f',
+    //   'host' => 'us-cdbr-azure-southcentral-e.cloudapp.net',
+    //   'port' => '3306',
+    //   'driver' => 'mysql',
+    //   'prefix' => '',
+    // ),
     array (
-      'database' => 'drupal7cleardbmysql',
-      'username' => 'b0ded7d2bedb5e',
-      'password' => '9a40ee9f',
-      'host' => 'us-cdbr-azure-southcentral-e.cloudapp.net',
+      'database' => 'drupalapi',
+      'username' => 'b5c4953a6fe79a',
+      'password' => '0bebf0a0',
+      'host' => 'ap-cdbr-azure-east-c.cloudapp.net',
       'port' => '3306',
       'driver' => 'mysql',
       'prefix' => '',
