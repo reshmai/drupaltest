@@ -1,0 +1,135 @@
+<?php
+/**
+* Implements hook_menu().
+*/
+function custom_search_menu() {  
+  $items['custom_search/autocomplete/%'] = array(
+    'page callback' => '_custom_search_autocomplete',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'), 
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK
+  );
+  return $items;
+}
+
+function _custom_search_autocomplete($city,$string = "") {
+  // Get the value of  city here
+  echo "<pre>";
+  print_r("City::".$city);
+  echo "<br>";
+  print_r("String::".$string);
+  echo "</pre>";die;
+
+}
+
+
+/**
+* Implements hook_block_info().
+*/
+function custom_search_block_info() {
+  $blocks = array();
+
+  $blocks['custom_search_form_block'] = array(
+    'info' => t('Wide Search box'),
+  );
+  return $blocks;
+}
+
+/**
+* Implements hook_block_view().
+*/
+function custom_search_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'custom_search_form_block':
+      $block['subject'] = 'Custom Search Form Block';
+      //$block['content'] = _custom_search_search_form_block_content();
+      $block['content'] = drupal_get_form('_wide_search_form');
+      break;
+  }
+  return $block;
+}
+
+function _wide_search_form($form, &$form_state){
+
+    $options_first = _custom_search_get_first_dropdown_options();
+
+    if(!empty($form_state['values']['city'])){
+      $city = $form_state['values']['city'];
+    }else{
+      $city = key($options_first);
+    }
+
+    $selected = isset($form_state['values']['city']) ? $form_state['values']['city'] : key($options_first);
+
+    $form['city'] = array(
+      '#title' => t('City'),
+      '#type' => 'select',
+      '#options' => $options_first,
+      '#default_value' => $selected,
+       '#ajax' => array(
+          'callback' => 'custom_search_dependent_dropdown_callback',
+          'wrapper' => 'dropdown-second-replace',
+          'method' => 'replace',
+          'event' => 'change',
+          ),
+    );
+
+    $form['keyword'] = array(
+      '#id' => 'keyword_to_search',
+      '#type' => 'textfield',
+      '#title' => '',
+      '#autocomplete_path' => 'custom_search/autocomplete/'.$city,
+      '#prefix' => '<div class="dropdown-second-replace">',
+      '#suffix' => '</div>',
+    );
+
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => 'Search'
+    );
+  
+  return $form;
+}
+function _custom_search_get_first_dropdown_options() {
+  $vocabulary = taxonomy_vocabulary_machine_name_load('facilities');
+  $terms = entity_load('taxonomy_term', FALSE, array('vid' => $vocabulary->vid));
+  $options = array();
+  foreach($terms as $keyTerm =>$keyValue){
+    $options[$keyTerm] = $keyValue->name;
+  }
+
+  return  $options;
+}
+
+function custom_search_dependent_dropdown_callback($form, $form_state) {
+
+  $city = $form_state['values']['city'];
+  $combine = $form_state['values']['keyword'];
+  $form['keyword']['#autocomplete_path'] = 'custom_search/autocomplete/'.$city;
+  $commands = array();
+  $commands[] = ajax_command_replace(".dropdown-second-replace", drupal_render($form['keyword']));
+  return array('#type' => 'ajax', '#commands' => $commands);  
+}
+// function _wide_search_form_submit($form, &$form_state){
+//   $city = $form_state['values']['city'];
+//   $combine = $form_state['values']['keyword'];
+//   $form_state['redirect'] = array(
+//     'list-business-map',
+//     array(
+//       'query' => array(
+//         'shs_term_node_tid_depth' => $city,
+//         'combine' => $combine,
+//       ),
+//     ),
+//   );
+// }
+
+function ndebug($result){
+  echo "<pre>";
+  print_r($result);
+  echo "</pre>";
+  die;
+}

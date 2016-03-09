@@ -1,0 +1,4 @@
+name = Custom Search
+description = Makes the search extensive and flexible
+package = custom
+core = 7.x

@@ -1,2 +1,93 @@
 <?php
+function drupaltest_menu() {  
+  $items['drupaltest/autocomplete'] = array(
+    'page callback' => '_drupaltest_autocomplete',
+  	'access arguments' => array('access content'), 
+  	'access callback' => TRUE,
+    'type' => MENU_CALLBACK
+  );
+  return $items;
+}
 
+function _drupaltest_autocomplete($string = "") {
+  // Get the value of  city here
+}
+
+
+/**
+* Implements hook_block_info().
+*/
+function drupaltest_block_info() {
+  $blocks = array();
+
+  $blocks['drupaltest_form_block'] = array(
+    'info' => t('Wide Search box'),
+  );
+  return $blocks;
+}
+
+/**
+* Implements hook_block_view().
+*/
+function drupaltest_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'drupaltest_form_block':
+      $block['subject'] = 'Custom Search Form Block';
+      //$block['content'] = _drupaltest_search_form_block_content();
+      $block['content'] = drupal_get_form('_wide_search_form');
+      break;
+  }
+  return $block;
+}
+
+function _wide_search_form($form, &$form_state){
+    $cities = array();
+    $vocab = 'country';
+    $cities = _get_all_terms($vocab, 1);
+  	$form['city'] = array(
+    	'#title' => t('City'),
+    	'#type' => 'select',
+    	'#options' => $cities,
+   	);
+    // I want this field value in Function _drupaltest_autocomplete()
+   	$form['keyword'] = array(
+    	'#id' => 'keyword_to_search',
+  		'#type' => 'textfield',
+	   	'#title' => '',
+    	'#autocomplete_path' => 'drupaltest/autocomplete',
+   	);
+
+  	$form['submit'] = array(
+    	'#type' => 'submit',
+    	'#value' => 'Search'
+  	);
+  
+  return $form;
+}
+function _wide_search_form_submit($form, &$form_state){
+  $city = $form_state['values']['city'];
+  $combine = $form_state['values']['keyword'];
+  $form_state['redirect'] = array(
+    'list-business-map',
+    array(
+      'query' => array(
+        'shs_term_node_tid_depth' => $city,
+        'combine' => $combine,
+      ),
+    ),
+  );
+}
+
+function _get_all_terms($vocab, $depth = NULL, $parent = 0){
+  $cities = array();
+  //$vocab = 'country';
+  $vocab_name = taxonomy_vocabulary_machine_name_load($vocab);
+  $tree = taxonomy_get_tree($vocab_name->vid, $parent, $depth);
+  foreach ($tree as $term) {
+   $cities[$term->tid] = $term->name;
+  }
+  return $cities;
+}
+?>
